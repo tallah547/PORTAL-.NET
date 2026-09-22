@@ -1,0 +1,104 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "PORTAL",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/Account/create": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "parameters": [
+          {
+            "name": "studentCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Account/login": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "parameters": [
+          {
+            "name": "studentCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Student": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Student/me": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Enter your JWT token.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
+}

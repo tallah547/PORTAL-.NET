@@ -1,0 +1,64 @@
+[
+  {
+    "ContainingType": "PORTAL.Controllers.AccountController",
+    "Method": "CreateAccount",
+    "RelativePath": "api/Account/create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "studentCode",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "password",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.AccountController",
+    "Method": "Login",
+    "RelativePath": "api/Account/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "studentCode",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "password",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetStudents",
+    "RelativePath": "api/Student",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetMe",
+    "RelativePath": "api/Student/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]
