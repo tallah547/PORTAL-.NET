@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using PORTAL.Models;
@@ -71,5 +72,14 @@ namespace PORTAL.Services
             return result.Value.FirstOrDefault(
                 student => student.Code == studentCode);
         }
+        public async Task<Student?> GetStudentbyStudentCode(string studentCode)
+        {
+            var result = await GetStudents();
+
+            return result.Value.FirstOrDefault(
+                student => student.Portal_User_Id.Replace("/", "")  == studentCode);
+        }
+
+
     }
 }

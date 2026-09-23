@@ -2,6 +2,7 @@
 using PORTAL.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace PORTAL.Controllers
 {
@@ -25,14 +26,23 @@ namespace PORTAL.Controllers
 
         [Authorize]
         [HttpGet("me")]
-        public IActionResult GetMe()
+        public async Task<IActionResult> GetMe()
         {
             var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
 
-            return Ok(new
+            if (string.IsNullOrEmpty(studentCode))
             {
-                studentCode = studentCode
-            });
+                return Unauthorized();
+            }
+
+            var student = 
+                await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student not found");
+            }
+            return Ok(student);
         }
         
     }

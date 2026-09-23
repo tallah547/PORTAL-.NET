@@ -46,10 +46,13 @@ namespace PORTAL.Controllers
                 StudentCode = studentCode
             });
         }
-
         [HttpPost("login")]
-        public async Task<IActionResult> Login(string studentCode, String password)
+        public async Task<IActionResult> Login(
+            [FromBody] LoginRequest request)
         {
+            var studentCode = request.StudentCode;
+            var password = request.Password;
+
             var user = await _userManager.FindByNameAsync(studentCode);
 
             if (user == null)
@@ -57,15 +60,17 @@ namespace PORTAL.Controllers
                 return Unauthorized("Invalid Student Code or Password");
             }
 
-            var result = await _userManager.CheckPasswordAsync(user, password);
+            var result = await _userManager.CheckPasswordAsync(
+                user,
+                password);
 
-            if(!result)
+            if (!result)
             {
                 return Unauthorized("Invalid Student Code or Password");
-
             }
+
             var claims = new[]
-              {
+            {
         new Claim(
             ClaimTypes.Name,
             user.StudentCode)
@@ -88,12 +93,12 @@ namespace PORTAL.Controllers
 
             var tokenString = new JwtSecurityTokenHandler()
                 .WriteToken(token);
+
             return Ok(new
             {
                 message = "Login Successful",
                 studentCode = user.StudentCode,
                 Token = tokenString
-
             });
         }
     }

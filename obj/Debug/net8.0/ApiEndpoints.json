@@ -29,14 +29,9 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "studentCode",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "password",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "request",
+        "Type": "PORTAL.Models.LoginRequest",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

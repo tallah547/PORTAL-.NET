@@ -139,3 +139,4 @@ D:\Lociafrica Code\PROJECTS .NET\PORTAL\bin\Debug\net8.0\runtimes\win\lib\net6.0
 D:\Lociafrica Code\PROJECTS .NET\PORTAL\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 D:\Lociafrica Code\PROJECTS .NET\PORTAL\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 D:\Lociafrica Code\PROJECTS .NET\PORTAL\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Lociafrica Code\PROJECTS .NET\PORTAL\obj\Debug\net8.0\PORTAL.sourcelink.json
