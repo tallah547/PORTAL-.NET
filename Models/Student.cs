@@ -21,5 +21,6 @@
         public string Academic_Year { get; set; }
         public string Year_of_Study_Semester { get; set; }
         public string Portal_User_Id { get; set; }
+        public string Customer_No { get; set; }
     }
 }

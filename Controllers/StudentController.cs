@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PORTAL.Services;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace PORTAL.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StudentController: ControllerBase
+    public class StudentController : ControllerBase
     {
         private readonly StudentService _studentService;
 
@@ -35,7 +34,7 @@ namespace PORTAL.Controllers
                 return Unauthorized();
             }
 
-            var student = 
+            var student =
                 await _studentService.GetStudentbyStudentCode(studentCode);
 
             if (student == null)
@@ -44,6 +43,30 @@ namespace PORTAL.Controllers
             }
             return Ok(student);
         }
-        
+
+        [Authorize]
+        [HttpGet("fees")]
+        public async Task<IActionResult> GetFees()
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student Not Found");
+            }
+
+            var entries =
+                await _studentService.GetStudentFeeEntries(student.Customer_No);
+
+            return Ok(entries);
+        }
+
     }
 }

@@ -87,6 +87,18 @@
           }
         }
       }
+    },
+    "/api/Student/fees": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {

@@ -48,6 +48,16 @@
   },
   {
     "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetFees",
+    "RelativePath": "api/Student/fees",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
     "Method": "GetMe",
     "RelativePath": "api/Student/me",
     "HttpMethod": "GET",

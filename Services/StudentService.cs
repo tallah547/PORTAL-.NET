@@ -1,8 +1,7 @@
+using PORTAL.Models;
 using System.Net.Http.Headers;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using PORTAL.Models;
 
 namespace PORTAL.Services
 {
@@ -77,7 +76,35 @@ namespace PORTAL.Services
             var result = await GetStudents();
 
             return result.Value.FirstOrDefault(
-                student => student.Portal_User_Id.Replace("/", "")  == studentCode);
+                student => student.Portal_User_Id.Replace("/", "") == studentCode);
+        }
+        public async Task<List<StudentFeeEntry>> GetStudentFeeEntries(
+    string customerNo)
+        {
+            var baseUrl = _configuration["BCSettings:BaseUrl"];
+            var endpoint = _configuration["BCSettings:StudentFeesEndpoint"];
+
+            var username = _configuration["BCSettings:Username"];
+            var password = _configuration["BCSettings:Password"];
+
+            var credentials =
+                Convert.ToBase64String(
+                    System.Text.Encoding.ASCII.GetBytes(
+                        $"{username}:{password}"));
+
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", credentials);
+
+            var url =
+                $"{baseUrl}/{endpoint}" +
+                $"?$filter=Customer_No eq '{customerNo}'";
+
+            var result =
+                await _httpClient.GetFromJsonAsync<
+                    ODataResponse<StudentFeeEntry>>(url);
+
+            return result?.Value ?? new List<StudentFeeEntry>();
+
         }
 
 
