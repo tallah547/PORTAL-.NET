@@ -62,10 +62,10 @@ namespace PORTAL.Controllers
                 return NotFound("Student Not Found");
             }
 
-            var entries =
-                await _studentService.GetStudentFeeEntries(student.Customer_No);
+            var summary =
+                await _studentService.GetStudentFeeSummary(student.Customer_No);
 
-            return Ok(entries);
+            return Ok(summary);
         }
 
     }

@@ -107,6 +107,20 @@ namespace PORTAL.Services
 
         }
 
+        public async Task<StudentFeeSummary> GetStudentFeeSummary(string customerNo)
+        {
+            var entries = await GetStudentFeeEntries(customerNo);
+
+            var summary = new StudentFeeSummary
+            {
+                BilledFees = entries.Where(entry => entry.Amount_LCY > 0).Sum(entry => entry.Amount_LCY),
+                PaidFees = Math.Abs(entries.Where(entry => entry.Amount_LCY < 0).Sum(entry => entry.Amount_LCY)),
+                Balance = entries.Sum(entry => entry.Amount_LCY)
+
+            };
+            return summary;
+        }
+
 
     }
 }
