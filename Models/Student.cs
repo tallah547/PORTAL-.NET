@@ -1,4 +1,5 @@
-﻿namespace PORTAL.Models
+﻿using System.Text.Json.Serialization;
+namespace PORTAL.Models
 {
     public class Student
     {
@@ -22,5 +23,8 @@
         public string Year_of_Study_Semester { get; set; }
         public string Portal_User_Id { get; set; }
         public string Customer_No { get; set; }
+
+        [JsonPropertyName("@odata.etag")]
+        public string? ETag { get; set; }
     }
 }

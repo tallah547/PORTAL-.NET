@@ -48,6 +48,16 @@
   },
   {
     "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetCourseLines",
+    "RelativePath": "api/Student/course-lines",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
     "Method": "GetFees",
     "RelativePath": "api/Student/fees",
     "HttpMethod": "GET",
@@ -64,6 +74,22 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "UpdatePhone",
+    "RelativePath": "api/Student/phone",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PORTAL.Models.UpdatePhoneRequest",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   }
 ]
