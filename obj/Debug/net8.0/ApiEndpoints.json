@@ -48,6 +48,16 @@
   },
   {
     "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetAvailableUnits",
+    "RelativePath": "api/Student/available-units",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
     "Method": "GetCourseLines",
     "RelativePath": "api/Student/course-lines",
     "HttpMethod": "GET",

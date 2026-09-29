@@ -142,6 +142,18 @@
           }
         }
       }
+    },
+    "/api/Student/available-units": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {

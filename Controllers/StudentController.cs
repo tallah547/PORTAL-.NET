@@ -142,5 +142,29 @@ namespace PORTAL.Controllers
         }
 
 
+        [Authorize]
+        [HttpGet("available-units")]
+        public async Task<IActionResult> GetAvailableUnits()
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student not found");
+            }
+
+            var units = await _studentService.GetAvailableUnits(student.Programme_Code, student.Year_of_Study_Semester);
+
+            return Ok(units);
+
+
+        }
     }
 }

@@ -156,7 +156,7 @@ namespace PORTAL.Services
 
             string password = _configuration["BCSettings:Password"]!;
 
-            string url = $"{baseUrl}/CourseRegistrationLines?$filter=Student_Code eq '{registrationCode}'";
+            string url = $"{baseUrl}/CourseRegistrationLines?$filter=Registration_Code eq '{registrationCode}'";
 
             string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
 
@@ -212,5 +212,39 @@ namespace PORTAL.Services
         }
 
 
+        public async Task<List<UnitLine>> GetAvailableUnits(string programmeCode, string yearOfStudy)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/UnitsLines?$filter=Programme_Code eq '{programmeCode}'" +
+                $" and Year_of_Study eq '{yearOfStudy}'" +
+                $" and Course_Code ne ''";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<ODataResponse<UnitLine>>(json,
+                  new JsonSerializerOptions
+                  {
+                      PropertyNameCaseInsensitive = true
+                  });
+
+            return result?.Value ?? new List<UnitLine>();
+
+
+        }
     }
 }
