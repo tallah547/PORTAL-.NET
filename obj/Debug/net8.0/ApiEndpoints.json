@@ -101,5 +101,21 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "RegisterUnits",
+    "RelativePath": "api/Student/register-units",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PORTAL.Models.RegisterUnitsRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

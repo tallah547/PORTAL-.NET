@@ -148,7 +148,7 @@ namespace PORTAL.Services
             //        return true;
         }
 
-        public async Task<List<CourseRegistrationLine>> GetCourseRegistrationLines(string registrationCode)
+        public async Task<List<CourseRegistrationLineCreate>> GetCourseRegistrationLines(string registrationCode)
         {
             string baseUrl = _configuration["BCSettings:BaseUrl"]!;
 
@@ -170,14 +170,14 @@ namespace PORTAL.Services
 
             var json = await response.Content.ReadAsStringAsync();
 
-            var result = JsonSerializer.Deserialize<ODataResponse<CourseRegistrationLine>>(json,
+            var result = JsonSerializer.Deserialize<ODataResponse<CourseRegistrationLineCreate>>(json,
                   new JsonSerializerOptions
                   {
                       PropertyNameCaseInsensitive = true
                   });
 
 
-            return result?.Value ?? new List<CourseRegistrationLine>();
+            return result?.Value ?? new List<CourseRegistrationLineCreate>();
         }
         public async Task<List<CourseRegistration>> GetCourseRegistrations(string studentCode, string yearOfStudySemester)
         {
@@ -220,9 +220,7 @@ namespace PORTAL.Services
 
             string password = _configuration["BCSettings:Password"]!;
 
-            string url = $"{baseUrl}/UnitsLines?$filter=Programme_Code eq '{programmeCode}'" +
-                $" and Year_of_Study eq '{yearOfStudy}'" +
-                $" and Course_Code ne ''";
+            string url = $"{baseUrl}/UnitsLines?$filter=Programme_Code eq '{programmeCode}'" + $" and Year_of_Study eq '{yearOfStudy}'" + $" and Course_Code ne ''";
 
             string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
 
@@ -244,6 +242,86 @@ namespace PORTAL.Services
 
             return result?.Value ?? new List<UnitLine>();
 
+
+        }
+
+        public async Task<CourseRegistration?> CreateCourseRegistration(CreateCourseRegistration registration)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/CourseRegistration";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+            request.Content = JsonContent.Create(registration);
+
+
+            var response = await _httpClient.SendAsync(request);
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"Create Course Registration Error: " +
+                    $"{response.StatusCode} - {json}");
+            }
+
+            var result = JsonSerializer.Deserialize<CourseRegistration>(json,
+                  new JsonSerializerOptions
+                  {
+                      PropertyNameCaseInsensitive = true
+                  });
+
+            return result;
+
+
+
+        }
+
+        public async Task<CourseRegistrationLineCreate?> CreateCourseRegistrationLine(CourseRegistrationLineCreate line)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/CourseRegistrationLines";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+            request.Content = JsonContent.Create(line);
+
+            var response = await _httpClient.SendAsync(request);
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Create Course Registration Line Error: " + $"{response.StatusCode} - {json}");
+            }
+
+            var result = JsonSerializer.Deserialize<CourseRegistrationLineCreate>(
+             json,
+             new JsonSerializerOptions
+             {
+                 PropertyNameCaseInsensitive = true
+             });
+
+            return result;
 
         }
     }

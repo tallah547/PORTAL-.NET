@@ -1,6 +1,6 @@
 ﻿namespace PORTAL.Models
 {
-    public class CourseRegistrationLine
+    public class CourseRegistrationLineCreate
     {
         public string Programme_Code { get; set; }
         public string Student_Code { get; set; }
