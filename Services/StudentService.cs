@@ -9,6 +9,10 @@ namespace PORTAL.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly string _baseUrl;
+        private readonly string _soapUrl;
+        private readonly string _username;
+        private readonly string _password;
 
         public StudentService(
             HttpClient httpClient,
@@ -16,6 +20,14 @@ namespace PORTAL.Services
         {
             _httpClient = httpClient;
             _configuration = configuration;
+
+            _baseUrl = configuration["BCSettings:BaseUrl"];
+
+            _soapUrl = configuration["BCSettings:SOAPUrl"];
+
+            _username = configuration["BCSettings:Username"];
+
+            _password = configuration["BCSettings:Password"];
         }
 
         public async Task<ODataResponse<Student>> GetStudents()
@@ -323,6 +335,49 @@ namespace PORTAL.Services
 
             return result;
 
+        }
+
+        public async Task RegisterUnits(string studentNo, string yearOfStudy, string programmeCode)
+        {
+            var soapEnvelope = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+            <soap:Envelope
+            xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+
+            <soap:Body>
+
+                <RegisterUnits
+                    xmlns=""urn:microsoft-dynamics-schemas/codeunit/PortalIntegration"">
+
+                    <studentNo>{studentNo}</studentNo>
+                    <yearofStudy>{yearOfStudy}</yearofStudy>
+                    <programmeCode>{programmeCode}</programmeCode>
+
+                </RegisterUnits>
+
+            </soap:Body>
+
+            </soap:Envelope>";
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _soapUrl);
+
+            request.Headers.Add("SOAPAction", "urn:microsoft-dynamics-schemas/codeunit/PortalIntegration:RegisterUnits");
+
+            request.Content = new StringContent(soapEnvelope, Encoding.UTF8, "text/xml");
+
+            var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_username}:{_password}"));
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+
+            var response = await _httpClient.SendAsync(request);
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"BC SOAP Error: {response.StatusCode} - {responseBody}");
+            }
         }
     }
 }

@@ -210,13 +210,22 @@ namespace PORTAL.Controllers
                 Posted = false
             };
 
+            var existingRegistrations = await _studentService.GetCourseRegistrations(student.Code, student.Year_of_Study_Semester);
+
+            var existingRegistration = existingRegistrations.FirstOrDefault();
+
+            if (existingRegistration != null)
+            {
+                return BadRequest(
+                    "You have already registered for units.");
+            }
+
             var result = await _studentService.CreateCourseRegistration(registration);
 
             if (result == null)
             {
                 return BadRequest("Course Registration could not be created");
             }
-
             var availableUnits = await _studentService.GetAvailableUnits(student.Programme_Code, student.Year_of_Study_Semester);
 
             foreach (var courseCode in request.SelectedUnits)
@@ -245,6 +254,9 @@ namespace PORTAL.Controllers
                 await _studentService.CreateCourseRegistrationLine(line);
 
             }
+            // Call BC Codeunit through SOAP
+            await _studentService.RegisterUnits(student.Code, student.Year_of_Study_Semester, student.Programme_Code);
+
             return Ok(result);
         }
     }

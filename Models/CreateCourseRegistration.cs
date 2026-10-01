@@ -1,4 +1,5 @@
-﻿namespace PORTAL.Models
+﻿
+namespace PORTAL.Models
 {
     public class CreateCourseRegistration
     {
@@ -18,5 +19,11 @@
         public string Programme_Name { get; set; }
         public string Year_of_Study_Semester { get; set; }
         public bool Posted { get; set; }
+
+
+        public static implicit operator CreateCourseRegistration(CourseRegistration v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
