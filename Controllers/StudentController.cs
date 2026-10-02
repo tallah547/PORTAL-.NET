@@ -210,15 +210,6 @@ namespace PORTAL.Controllers
                 Posted = false
             };
 
-            var existingRegistrations = await _studentService.GetCourseRegistrations(student.Code, student.Year_of_Study_Semester);
-
-            var existingRegistration = existingRegistrations.FirstOrDefault();
-
-            if (existingRegistration != null)
-            {
-                return BadRequest(
-                    "You have already registered for units.");
-            }
 
             var result = await _studentService.CreateCourseRegistration(registration);
 
@@ -258,6 +249,29 @@ namespace PORTAL.Controllers
             await _studentService.RegisterUnits(student.Code, student.Year_of_Study_Semester, student.Programme_Code);
 
             return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("registration-status")]
+        public async Task<IActionResult> GetRegistrationStatus()
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student not found");
+            }
+
+            var registrations = await _studentService.GetCourseRegistrations(student.Code, student.Year_of_Study_Semester);
+
+            return Ok(registrations.Any());
         }
     }
 }

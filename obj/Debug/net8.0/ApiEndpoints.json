@@ -117,5 +117,15 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetRegistrationStatus",
+    "RelativePath": "api/Student/registration-status",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
   }
 ]

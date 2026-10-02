@@ -185,6 +185,18 @@
           }
         }
       }
+    },
+    "/api/Student/registration-status": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
