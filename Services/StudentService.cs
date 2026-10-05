@@ -379,5 +379,196 @@ namespace PORTAL.Services
                     $"BC SOAP Error: {response.StatusCode} - {responseBody}");
             }
         }
+
+        public async Task<HostelBooking?> CreateHostelBooking(CreateHostelBooking booking)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/HostelBooking";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+            request.Content = JsonContent.Create(booking);
+
+            var response = await _httpClient.SendAsync(request);
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Hostel Booking  Error: " + $"{response.StatusCode} - {json}");
+            }
+
+            var result = JsonSerializer.Deserialize<HostelBooking>(
+             json,
+             new JsonSerializerOptions
+             {
+                 PropertyNameCaseInsensitive = true
+             });
+
+            return result;
+
+        }
+
+        public async Task<List<Hostel>> GetHostelsByGender(String gender)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/Hostels?" + $"$filter=Gender eq '{gender}' and Full eq false";
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Hostel Booking  Error: " + $"{response.StatusCode} - {json}");
+            }
+
+
+            var result = JsonSerializer.Deserialize<ODataResponse<Hostel>>(
+                        json,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+
+
+            return result?.Value ?? new List<Hostel>();
+        }
+
+        public async Task<List<HostelBooking>> GetHostelBookings(String studentCode, string yearOfStudy)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+
+            string url = $"{baseUrl}/HostelBooking?" + $"$filter=Student_Code eq '{studentCode}'" + $"and Year_of_Study eq '{yearOfStudy}'"; ;
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Hostel Booking  Error: " + $"{response.StatusCode} - {json}");
+            }
+
+            var result = JsonSerializer.Deserialize<
+                       ODataResponse<HostelBooking>>(
+                       json,
+                       new JsonSerializerOptions
+                       {
+                           PropertyNameCaseInsensitive = true
+                       });
+
+
+            return result?.Value ?? new List<HostelBooking>();
+        }
+
+        public async Task BookHostel(string bookingCode)
+        {
+            var soapEnvelope = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+            <soap:Envelope
+            xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+
+            <soap:Body>
+
+                <BookHostel
+                    xmlns=""urn:microsoft-dynamics-schemas/codeunit/PortalIntegration"">
+
+                         <bookingCode>{bookingCode}</bookingCode>
+
+                </BookHostel>
+
+            </soap:Body>
+
+            </soap:Envelope>";
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _soapUrl);
+
+            request.Headers.Add("SOAPAction", "urn:microsoft-dynamics-schemas/codeunit/PortalIntegration:BookHostel");
+
+            request.Content = new StringContent(soapEnvelope, Encoding.UTF8, "text/xml");
+
+            var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_username}:{_password}"));
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+
+            var response = await _httpClient.SendAsync(request);
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"BC SOAP Error: {response.StatusCode} - {responseBody}");
+            }
+        }
+
+        public async Task<HostelBooking?> GetHostelBooking(string bookingCode)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/HostelBooking?" + $"$filter=Code eq '{bookingCode}'";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<ODataResponse<HostelBooking>>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+            return result?.Value.FirstOrDefault();
+        }
     }
 }

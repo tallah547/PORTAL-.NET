@@ -273,5 +273,127 @@ namespace PORTAL.Controllers
 
             return Ok(registrations.Any());
         }
+
+        [Authorize]
+        [HttpPost("book-hostel")]
+        public async Task<IActionResult> BookHostel([FromBody] HostelBookingRequest request)
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            if (request == null || string.IsNullOrEmpty(request.Hostel))
+            {
+                return BadRequest("Hostel is required");
+            }
+
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student not found");
+            }
+
+            var existingBookings = await _studentService.GetHostelBookings(student.Code, student.Year_of_Study_Semester);
+
+            if (existingBookings.Any())
+            {
+                return BadRequest(
+                    "You have already booked a hostel.");
+            }
+
+            var hostels = await _studentService.GetHostelsByGender(student.Gender);
+
+            var selectedHostel = hostels.FirstOrDefault(h => h.Code.Equals(request.Hostel, StringComparison.OrdinalIgnoreCase));
+
+            if (selectedHostel == null)
+            {
+                return BadRequest("The selected hostel is not available");
+            }
+
+            var booking = new CreateHostelBooking
+            {
+                Student_Code = student.Code,
+                Hostel = request.Hostel,
+                Student_Name = $"{student.First_Name} {student.Middle_Name} {student.SurName}".Trim(),
+                Gender = student.Gender,
+                Email = student.E_Mail,
+                Year_of_Study = student.Year_of_Study_Semester,
+                Portal_User_Id = student.Portal_User_Id,
+                Name = selectedHostel.Name
+            };
+
+            var result = await _studentService.CreateHostelBooking(booking);
+
+            if (result == null)
+            {
+                return BadRequest("Hostel booking could not be created");
+            }
+
+            await _studentService.BookHostel(result.Code);
+
+            var updatedBooking = await _studentService.GetHostelBooking(result.Code);
+
+            return Ok(updatedBooking);
+
+        }
+
+        [Authorize]
+        [HttpGet("hostel")]
+        public async Task<IActionResult> GetHostels()
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student Not FOund");
+            }
+
+            var hostels = await _studentService.GetHostelsByGender(student.Gender);
+
+            return Ok(hostels);
+
+        }
+
+        [Authorize]
+        [HttpGet("hostel-booking")]
+        public async Task<IActionResult> GetHostelBooking()
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student not found");
+            }
+
+            var bookings = await _studentService.GetHostelBookings(student.Code, student.Year_of_Study_Semester);
+
+            var booking = bookings.FirstOrDefault();
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(booking);
+        }
     }
 }

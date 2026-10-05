@@ -58,6 +58,22 @@
   },
   {
     "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "BookHostel",
+    "RelativePath": "api/Student/book-hostel",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PORTAL.Models.HostelBookingRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
     "Method": "GetCourseLines",
     "RelativePath": "api/Student/course-lines",
     "HttpMethod": "GET",
@@ -70,6 +86,26 @@
     "ContainingType": "PORTAL.Controllers.StudentController",
     "Method": "GetFees",
     "RelativePath": "api/Student/fees",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetHostels",
+    "RelativePath": "api/Student/hostel",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetHostelBooking",
+    "RelativePath": "api/Student/hostel-booking",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
