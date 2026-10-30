@@ -295,8 +295,6 @@ namespace PORTAL.Services
 
             return result;
 
-
-
         }
 
         public async Task<CourseRegistrationLineCreate?> CreateCourseRegistrationLine(CourseRegistrationLineCreate line)
@@ -570,5 +568,199 @@ namespace PORTAL.Services
 
             return result?.Value.FirstOrDefault();
         }
+
+        public async Task<List<ExamRegistration>> GetExamRegistration(string studentCode)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/ExamRegistration?$filter=Student_Code eq '{studentCode}'";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+
+            var response = await _httpClient.SendAsync(request);
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"Get Exam Registration Error: " +
+                    $"{response.StatusCode} - {json}");
+            }
+
+            var result = JsonSerializer.Deserialize<ODataResponse<ExamRegistration>>(json,
+                  new JsonSerializerOptions
+                  {
+                      PropertyNameCaseInsensitive = true
+                  });
+
+            return result?.Value ?? new List<ExamRegistration>();
+
+        }
+
+        public async Task<List<ExamRegistrationLine>> GetExamRegistrationLines(string studentCode)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/ExamRegistrationLines?$filter=Student_Code eq '{studentCode}'";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+            var response = await _httpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<ODataResponse<ExamRegistrationLine>>(json,
+                  new JsonSerializerOptions
+                  {
+                      PropertyNameCaseInsensitive = true
+                  });
+
+
+            return result?.Value ?? new List<ExamRegistrationLine>();
+        }
+
+        public async Task<ExamRegistration?> CreateExamRegistration(CreateExamRegistration registration)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/ExamRegistration";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+            request.Content = JsonContent.Create(registration);
+
+
+            var response = await _httpClient.SendAsync(request);
+
+            var json = await response.Content.ReadAsStringAsync();
+
+
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"Create Exam Registration Error: " +
+                    $"{response.StatusCode} - {json}");
+            }
+
+            var result = JsonSerializer.Deserialize<ExamRegistration>(json,
+                  new JsonSerializerOptions
+                  {
+                      PropertyNameCaseInsensitive = true
+                  });
+
+            return result;
+
+        }
+
+        public async Task<ExamRegistrationLine?> CreateExamRegistrationLine(ExamRegistrationLine line)
+        {
+            string baseUrl = _configuration["BCSettings:BaseUrl"]!;
+
+            string username = _configuration["BCSettings:Username"]!;
+
+            string password = _configuration["BCSettings:Password"]!;
+
+            string url = $"{baseUrl}/ExamRegistrationLines";
+
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+            request.Content = JsonContent.Create(line);
+
+            var response = await _httpClient.SendAsync(request);
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Create Course Registration Line Error: " + $"{response.StatusCode} - {json}");
+            }
+
+            var result = JsonSerializer.Deserialize<ExamRegistrationLine>(
+             json,
+             new JsonSerializerOptions
+             {
+                 PropertyNameCaseInsensitive = true
+             });
+
+            return result;
+
+        }
+
+        public async Task RegisterExams(string studentNo, string yearOfStudy)
+        {
+            var soapEnvelope = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+            <soap:Envelope
+            xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+
+            <soap:Body>
+
+                <RegisterUnits
+                    xmlns=""urn:microsoft-dynamics-schemas/codeunit/PortalIntegration"">
+
+                    <studentNo>{studentNo}</studentNo>
+                    <yearofStudy>{yearOfStudy}</yearofStudy>
+
+                </RegisterUnits>
+
+            </soap:Body>
+
+            </soap:Envelope>";
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _soapUrl);
+
+            request.Headers.Add("SOAPAction", "urn:microsoft-dynamics-schemas/codeunit/PortalIntegration:RegisterExams");
+
+            request.Content = new StringContent(soapEnvelope, Encoding.UTF8, "text/xml");
+
+            var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_username}:{_password}"));
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+
+
+            var response = await _httpClient.SendAsync(request);
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"BC SOAP Error: {response.StatusCode} - {responseBody}");
+            }
+        }
+
+
     }
 }

@@ -84,6 +84,42 @@
   },
   {
     "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetExamRegistration",
+    "RelativePath": "api/Student/exam-registration",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "CreateExamRegistration",
+    "RelativePath": "api/Student/exam-registration",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PORTAL.Models.RegisterExamsRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
+    "Method": "GetExamRegistrationLines",
+    "RelativePath": "api/Student/exam-registrations-lines",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PORTAL.Controllers.StudentController",
     "Method": "GetFees",
     "RelativePath": "api/Student/fees",
     "HttpMethod": "GET",

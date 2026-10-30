@@ -395,5 +395,218 @@ namespace PORTAL.Controllers
 
             return Ok(booking);
         }
+
+        // Start Fetch exam registrations
+        [Authorize]
+        [HttpGet("exam-registration")]
+        public async Task<IActionResult> GetExamRegistration()
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student not found");
+            }
+
+            var registration = await _studentService.GetExamRegistration(student.Code);
+
+
+            return Ok(registration);
+
+        }
+
+        [Authorize]
+        [HttpGet("exam-registrations-lines")]
+        public async Task<IActionResult> GetExamRegistrationLines()
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student not found");
+            }
+
+            var registrations = await _studentService.GetExamRegistrationLines(student.Code);
+
+            if (registrations == null || registrations.Count == 0)
+            {
+                return NotFound("Exam Registration not found");
+            }
+
+            return Ok(registrations);
+        }
+
+        //End Fetch exam registrations
+
+
+        // Start Exam Registrations
+        [Authorize]
+        [HttpPost("exam-registration")]
+        public async Task<IActionResult> CreateExamRegistration([FromBody] RegisterExamsRequest request)
+        {
+            var studentCode = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(studentCode))
+            {
+                return Unauthorized();
+            }
+
+            var student = await _studentService.GetStudentbyStudentCode(studentCode);
+
+            if (student == null)
+            {
+                return NotFound("Student not found");
+            }
+
+            // Validate selected units
+            if (request == null || request.SelectedUnits == null || !request.SelectedUnits.Any())
+            {
+                return BadRequest("Please select atleast one unit for exam registration");
+            }
+
+
+
+            var courseRegistrations = await _studentService.GetCourseRegistrations(
+                student.Code, student.Year_of_Study_Semester);
+
+            if (courseRegistrations == null || !courseRegistrations.Any())
+            {
+                return BadRequest("Register units first before trying to book for exam");
+            }
+
+            var courseRegistration = courseRegistrations.FirstOrDefault(x =>
+                x.Year_of_Study_Semester == student.Year_of_Study_Semester);
+
+            if (courseRegistration == null)
+            {
+                return BadRequest("Course registration for the current semester was not found.");
+            }
+
+            var courseRegistrationLines = await _studentService.GetCourseRegistrationLines(
+                courseRegistration.Code);
+
+
+
+            if (courseRegistrationLines == null || courseRegistrationLines.Count == 0)
+            {
+                return BadRequest("No registered units found.");
+            }
+
+            var examRegistrations = await _studentService.GetExamRegistration(student.Code);
+
+            var registration = examRegistrations.FirstOrDefault(x =>
+                x.Year_of_Study == student.Year_of_Study_Semester);
+
+            if (registration == null)
+            {
+                var newRegistration = new CreateExamRegistration
+                {
+                    Student_Code = student.Code,
+                    Student_Name = $"{student.First_Name} {student.Middle_Name} {student.SurName}".Trim(),
+                    Year_of_Study = student.Year_of_Study_Semester,
+                    Programme_COde = student.Programme_Code,
+                    Programme_Name = student.Programme_Name,
+                    Department_Code = student.Department_Code,
+                    Department_Name = student.Department_Name,
+                    Registered = false
+                };
+                registration = await _studentService.CreateExamRegistration(newRegistration);
+
+
+                if (registration == null)
+                {
+                    return BadRequest("Exam Registration could not be created.");
+                }
+            }
+            // Get existing exam registration lines.
+            var examRegistrationLines = await _studentService.GetExamRegistrationLines(student.Code);
+
+
+            // Only consider lines belonging to the current exam registration header.
+            var existingExamLines = examRegistrationLines.Where(x => x.Registration_Code == registration.Code).ToList();
+
+            var processedCourseCodes = new HashSet<string>(existingExamLines.Select(x => x.Course_Code), StringComparer.OrdinalIgnoreCase);
+
+            foreach (var courseCode in request.SelectedUnits.Distinct())
+            {
+                if (!processedCourseCodes.Add(courseCode))
+                    continue;
+
+                Console.WriteLine($"INSERTING UNIT: {courseCode}");
+
+                // Find the selected unit among the student's registered course units.
+                var unit = courseRegistrationLines.FirstOrDefault(x => x.Course_Code == courseCode && x.Year_of_Study == student.Year_of_Study_Semester);
+
+                if (unit == null)
+                {
+                    return BadRequest($"Unit {courseCode} could not be found in your course registration.");
+                }
+
+                // Skip units that have already been exam-registered.
+                var alreadyRegistered = existingExamLines.Any(x =>
+                    x.Course_Code == courseCode
+                );
+
+                if (alreadyRegistered)
+                {
+                    continue;
+                }
+
+                var examLine = new ExamRegistrationLine
+                {
+                    Programme_Code = student.Programme_Code,
+                    Student_Code = student.Code,
+                    Year_of_Study = student.Year_of_Study_Semester,
+                    Registration_Code = registration.Code,
+                    Entry_No = request.SelectedUnits.IndexOf(courseCode),
+                    Course_Code = unit.Course_Code,
+                    Description = unit.Description,
+                    Lecturer = unit.Lecturer,
+                    Name = unit.Name
+                };
+
+                try
+                {
+                    var result = await _studentService.CreateExamRegistrationLine(examLine);
+
+                    if (result == null)
+                    {
+                        return StatusCode(502, $"Could not register unit {courseCode} for exams.");
+                    }
+
+                    // Add the successfully created line so the next iteration
+                    // can detect it and generate the next entry number.
+                    existingExamLines.Add(result);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(502, $"Failed to register unit {courseCode}: {ex.Message}");
+                }
+            }
+
+            return Ok(new
+            {
+                Message = "Exam registration completed successfully.",
+                Registration = registration,
+                RegisteredUnits = existingExamLines
+            });
+        }
+
     }
+
+
 }
